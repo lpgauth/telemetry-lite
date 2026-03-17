@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    name: OTP ${{ matrix.otp_version }} / rebar3 ${{ matrix.rebar3_version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - otp_version: "27"
+            rebar3_version: "3.25.1"
+          - otp_version: "28"
+            rebar3_version: "3.25.1"
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - uses: erlef/setup-beam@v1
+      with:
+        otp-version: ${{ matrix.otp_version }}
+        rebar3-version: ${{ matrix.rebar3_version }}
+
+    - uses: actions/cache@v4
+      with:
+        path: _build
+        key: ${{ runner.os }}-${{ matrix.otp_version }}-${{ matrix.rebar3_version }}-${{ hashFiles('rebar.config') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.otp_version }}-${{ matrix.rebar3_version }}-
+
+    - name: Compile
+      run: rebar3 compile
+
+    - name: Format check
+      run: rebar3 fmt --check
+
+    - name: Tests
+      run: rebar3 ct --cover
+
+    - name: XRef
+      run: rebar3 xref
+
+    - name: Dialyzer
+      run: rebar3 dialyzer
+      if: ${{ matrix.otp_version == 28 }}

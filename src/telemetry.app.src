@@ -1,0 +1,15 @@
+{application, telemetry, [
+    {description, "Lightweight telemetry event dispatching"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {mod, {telemetry_app, []}},
+    {applications, [
+        kernel,
+        stdlib
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["MIT"]},
+    {links, [{"GitHub", "https://github.com/lpgauth/telemetry-lite"}]},
+    {doc, "doc"}
+]}.
